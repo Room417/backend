@@ -58,6 +58,9 @@ class Student(models.Model):
         """Функция для получения актуальной информации в начале учебного года из ОРИОКС'а"""
         pass
 
+    def __str__(self):
+        return f'{self.surname} {self.name} {self.group}'
+
 
 class Grade(models.Model):
     """Модель ступени обучения"""
@@ -81,3 +84,6 @@ class Resident(models.Model):
     @property
     def address(self):
         return f'{self.room.building.address}, к. {self.room.number}'
+
+    def __str__(self):
+        return self.student.__str__()
