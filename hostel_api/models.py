@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-from path_utils import get_photo_path, get_contract_path, get_registration_path
+from .path_utils import get_photo_path, get_contract_path, get_registration_path
 
 
 class Staff(models.Model):
@@ -51,8 +51,8 @@ class Student(models.Model):
     group = models.CharField(verbose_name='Группа', max_length=10)
     study_direction = models.CharField(verbose_name='Направление подготовки', max_length=50)
     student_card = models.PositiveIntegerField(verbose_name='Номер студенческого')
-    auth_token = models.CharField(verbose_name='Токен аутентификации')
-    pass_hash = models.CharField(verbose_name=256)
+    auth_token = models.CharField(verbose_name='Токен аутентификации', max_length=100)
+    pass_hash = models.CharField(verbose_name='Хэш пароля', max_length=256)
 
     def update_profile(self):
         """Функция для получения актуальной информации в начале учебного года из ОРИОКС'а"""
