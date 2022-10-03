@@ -23,7 +23,7 @@ class Building(models.Model):
         return f'Корпус №{self.number}'
 
     @property
-    def address(self):
+    def address(self) -> str:
         """Свойство для получения адреса корпуса"""
         return f'г. Зеленоград, ул. Юности, д. {self.number}'
 
@@ -38,7 +38,7 @@ class Room(models.Model):
         return f'{self.building.number-self.number}'
 
     @property
-    def floor(self):
+    def floor(self) -> int:
         """Свойство для получения номера этажа"""
         return self.number % 100
 
@@ -82,7 +82,7 @@ class Resident(models.Model):
     registration = models.FileField(verbose_name='Временная регистрация', upload_to=get_registration_path)
 
     @property
-    def address(self):
+    def address(self) -> str:
         return f'{self.room.building.address}, к. {self.room.number}'
 
     def __str__(self):

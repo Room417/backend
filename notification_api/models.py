@@ -1,4 +1,7 @@
 from django.db import models
+from datetime import date
+
+
 from hostel_api.models import Staff, Resident
 
 
@@ -10,9 +13,15 @@ class Notification(models.Model):
     creation_date = models.DateTimeField(verbose_name='Дата создания', auto_now_add=True)
     is_published = models.BooleanField(verbose_name='Опубликовано', default=True)
     recipients = models.ManyToManyField(Resident, verbose_name='Получатели', related_name='notifications')
+    start_date = models.DateField(verbose_name='Дата начала отображения')
+    end_date = models.DateField(verbose_name='Дата конца отображения')
 
     def __str__(self):
         return f'{self.title}. Автор: {self.author.__str__()}'
+
+    @property
+    def is_active(self) -> bool:
+        return self.start_date <= date.today() <= self.end_date
 
 
 class Request(models.Model):
@@ -24,6 +33,8 @@ class Request(models.Model):
     creation_date = models.DateTimeField(verbose_name='Дата создания', auto_now_add=True)
     is_seen = models.BooleanField(verbose_name='Просмотрено', default=False)
     archived = models.BooleanField(verbose_name='Заархивировано', default=False)
+    if_provided = models.BooleanField(verbose_name='Услуга оказана', default=False)
+    provision_date = models.DateField(verbose_name='Дата оказания услуги', null=True, default=None)
 
     def __str__(self):
         return f'{self.title}. Автор: {self.author.__str__()}'
