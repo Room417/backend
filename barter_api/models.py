@@ -13,3 +13,8 @@ class Product(models.Model):
 
     def __str__(self):
         return f'{self.title} ({self.author.surname})'
+
+
+class Image(models.Model):
+    image = models.ImageField(verbose_name='Фото', upload_to='product_photos//%Y/%m/%d/')
+    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE, related_name='images')
