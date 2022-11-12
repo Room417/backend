@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from pydantic import BaseModel
 import factory
 
 from .models import (
@@ -138,3 +139,8 @@ class ResidentCreateSerializer(ResidentSerializer):
         if value is None:
             return factory.django.FileField()
         return value
+
+
+class RelocateRoomResidentSchema(BaseModel):
+    room_id: int
+    resident_id: int

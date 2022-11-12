@@ -42,6 +42,11 @@ class Room(models.Model):
         """Свойство для получения номера этажа"""
         return self.number % 100
 
+    @property
+    def is_full(self) -> bool:
+        """Заполнена ли комната"""
+        return Resident.objects.filter(room_id=self.id).count() == self.max_residents
+
 
 class Student(models.Model):
     """Модель студента"""

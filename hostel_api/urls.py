@@ -18,4 +18,6 @@ urlpatterns = [
          name='persons-residents-search-one'),
     path('persons/residents', ResidentsViewSet.as_view({'post': 'create'}),
          name='persons-residents-create'),
+    path('residents/relocate', ResidentsViewSet.as_view({'post': 'relocate'}),
+         name='persons-residents-relocate'),
 ]
