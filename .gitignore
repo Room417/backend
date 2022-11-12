@@ -9,3 +9,4 @@ hostel_api/__pycache__
 notification_api/__pycache__
 media
 tests/.pytest_cache
+.pytest_cache
