@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_filters",
     "rest_framework",
     "hostel_api.apps.HostelApiConfig",
     "barter_api.apps.BarterApiConfig",

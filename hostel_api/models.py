@@ -35,7 +35,7 @@ class Room(models.Model):
     max_residents = models.PositiveIntegerField(verbose_name='Максимальное число жильцов')
 
     def __str__(self):
-        return f'{self.building.number-self.number}'
+        return f'{self.building.number}-{self.number}'
 
     @property
     def floor(self) -> int:
