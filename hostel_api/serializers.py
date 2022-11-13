@@ -28,10 +28,10 @@ class StaffSerializer(serializers.ModelSerializer):
 
     def get_buildings(self, obj):
         include_fields = self.context.get('include')
-        if 'buildings' in include_fields:
+        if include_fields and 'buildings' in include_fields:
             return BuildingShortSerializer(obj.buildings.all(), many=True).data
 
-        return [building.id for building in obj.buildings.all()]
+        return [building.number for building in obj.buildings.all()]
 
 
 class BuildingSerializer(serializers.ModelSerializer):
@@ -43,10 +43,10 @@ class BuildingSerializer(serializers.ModelSerializer):
 
     def get_staff(self, obj):
         include_fields = self.context.get('include')
-        if 'staff' in include_fields:
+        if include_fields and 'staff' in include_fields:
             return StaffSerializer(obj.staff.all(), many=True).data
 
-        return [staff.id for staff in obj.staff.all()]
+        return [staff.__str__() for staff in obj.staff.all()]
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -75,14 +75,14 @@ class ResidentSerializer(serializers.ModelSerializer):
 
     def get_student(self, obj):
         include_fields = self.context.get('include')
-        if 'student' in include_fields:
+        if include_fields and 'student' in include_fields:
             return StudentSerializer(obj.student).data
 
-        return obj.student.id
+        return obj.student.__str__()
 
     def get_room(self, obj):
         include_fields = self.context.get('include')
-        if 'room' in include_fields:
+        if include_fields and 'room' in include_fields:
             return RoomShortSerializer(obj.room).data
 
         return obj.room.number

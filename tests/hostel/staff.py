@@ -96,6 +96,6 @@ def test_include_staff(client, initial_data, include):
         ]
 
     else:
-        assert persons[0]['buildings'] == [initial_data['building1'].id]
+        assert persons[0]['buildings'] == [initial_data['building1'].number]
         assert persons[1]['buildings'] == []
-        assert persons[2]['buildings'] == [initial_data['building1'].id, initial_data['building2'].id]
+        assert persons[2]['buildings'] == [initial_data['building1'].number, initial_data['building2'].number]
