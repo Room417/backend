@@ -102,3 +102,72 @@ def test_get_one_resident(client, initial_data, correct):
 
     else:
         assert response.status_code == 404
+
+
+@pytest.mark.parametrize('is_full', [True, False])
+def test_relocate(db, client, is_full, student_factory, room_factory, building_factory, resident_factory):
+    # создаем корпус и комнаты
+    building = building_factory(number=11)
+    room1 = room_factory(building=building, number=15)
+    room2 = room_factory(building=building, number=16, max_residents=1)
+
+    # заселяем студентов
+    resident = resident_factory(room=room1)
+
+    if is_full:
+        resident_factory(room=room2)
+
+    response = client.post(
+        reverse('persons-residents-relocate'),
+        data={'room_id': room2.id, 'resident_id': resident.id},
+        content_type='application/json'
+    )
+
+    if is_full:
+        assert response.status_code == 400
+        assert response.json() == {
+                'error': 'Переселение невозможно',
+                'msg': 'Комната заполнена. Переселение невозможно'
+            }
+
+    else:
+        assert response.status_code == 200
+        resident.refresh_from_db()
+        assert resident.room == room2
+
+
+@pytest.mark.parametrize('data', [
+    {},
+    {'room_id': 1},
+    {'room_id': 'room_id'},
+    {'resident_id': 'resident_id'},
+    {'resident_id': 1}
+])
+def test_incorrect_request_body_relocate(client, data):
+    response = client.post(reverse('persons-residents-relocate'), data=data, content_type='application/json')
+    assert response.status_code == 400
+
+
+@pytest.mark.parametrize('error', ['resident', 'room'])
+def test_nonexistent_room_or_resident(db, client, room_factory, resident_factory, error):
+    if error == 'resident':
+        room = room_factory()
+        data = {'room_id': room.id, 'resident_id': 0}
+
+        expected_error = {
+                'error': 'Объект не найден',
+                'msg': 'Проживающего с таким id не существует'
+            }
+
+    else:
+        resident = resident_factory()
+        data = {'room_id': 0, 'resident_id': resident.id}
+
+        expected_error = {
+                'error': 'Объект не найден',
+                'msg': 'Комнаты с таким id не существует'
+            }
+
+    response = client.post(reverse('persons-residents-relocate'), data=data, content_type='application/json')
+    assert response.status_code == 400
+    assert response.json() == expected_error
