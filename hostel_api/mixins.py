@@ -4,6 +4,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from django.core import exceptions
 
+from .paginators import MetaPaginator
+
 
 class DefaultViewMixin(ModelViewSet):
     """ Миксин для реализации поиска объектов """
@@ -11,6 +13,7 @@ class DefaultViewMixin(ModelViewSet):
     default_sort_fields = []
     default_filter_fields = {}
     default_include_fields = []
+    pagination_class = MetaPaginator
 
     def get_queryset(self):
         """ Получение queryset'a с заданной фильтрацией, сортировкой, включением нужных связанных объектов"""
@@ -26,8 +29,8 @@ class DefaultViewMixin(ModelViewSet):
     def search(self, request, *args, **kwargs):
         """ Функция поиска объектов """
         try:
-            query_set = self.get_queryset().distinct()
-            serializer = self.serializer_class(query_set, many=True,
+            queryset = self.get_queryset().distinct()
+            serializer = self.serializer_class(queryset, many=True,
                                                context={'include': self.request.data.get('include', [])})
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)

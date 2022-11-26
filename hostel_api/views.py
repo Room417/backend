@@ -33,7 +33,7 @@ class StaffViewSet(DefaultViewMixin):
             order_by = self.default_sort_fields
         filter_ = data.get('search', '')
 
-        query_set = self.model.objects.annotate(
+        queryset = self.model.objects.annotate(
             temp=functions.Concat(
                 F('surname'),
                 Value(' '),
@@ -43,7 +43,13 @@ class StaffViewSet(DefaultViewMixin):
                 output_field=CharField(),
             )
         ).filter(temp__icontains=filter_).order_by(*order_by)
-        serializer = self.serializer_class(query_set, many=True, context={'include': []})
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.serializer_class(queryset, many=True, context={'include': []})
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
@@ -78,7 +84,7 @@ class ResidentsViewSet(DefaultViewMixin):
             order_by = self.default_sort_fields
         filter_ = data.get('search', '')
 
-        query_set = self.model.objects.annotate(
+        queryset = self.model.objects.annotate(
             temp=functions.Concat(
                 F('student__surname'),
                 Value(' '),
@@ -90,7 +96,13 @@ class ResidentsViewSet(DefaultViewMixin):
                 output_field=CharField(),
             )
         ).filter(temp__icontains=filter_).order_by(*order_by)
-        serializer = self.serializer_class(query_set, many=True, context={'include': []})
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.serializer_class(queryset, many=True, context={'include': []})
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
