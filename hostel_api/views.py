@@ -3,6 +3,8 @@ from typing import Union
 import pydantic
 from rest_framework import status
 from rest_framework.response import Response
+from django.db.models import F, CharField, functions, Value
+
 from .models import (
     Staff,
     Student,
@@ -23,6 +25,27 @@ class StaffViewSet(DefaultViewMixin):
     model = Staff
     serializer_class = StaffSerializer
     default_sort_fields = ['surname', 'name', 'patronymic']
+
+    def all_search(self, request, *args, **kwargs):
+        data = self.request.data
+        order_by = data.get('sort')
+        if not order_by:
+            order_by = self.default_sort_fields
+        filter_ = data.get('search', '')
+
+        query_set = self.model.objects.annotate(
+            temp=functions.Concat(
+                F('surname'),
+                Value(' '),
+                F('name'),
+                Value(' '),
+                F('patronymic'),
+                output_field=CharField(),
+            )
+        ).filter(temp__icontains=filter_).order_by(*order_by)
+        serializer = self.serializer_class(query_set, many=True, context={'include': []})
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
 
 class StudentViewSet(DefaultViewMixin):
@@ -47,6 +70,29 @@ class ResidentsViewSet(DefaultViewMixin):
                 'error': 'Объект не найден',
                 'msg': '{model} с таким id не существует'
             }
+
+    def all_search(self, request, *args, **kwargs):
+        data = self.request.data
+        order_by = data.get('sort')
+        if not order_by:
+            order_by = self.default_sort_fields
+        filter_ = data.get('search', '')
+
+        query_set = self.model.objects.annotate(
+            temp=functions.Concat(
+                F('student__surname'),
+                Value(' '),
+                F('student__name'),
+                Value(' '),
+                F('student__patronymic'),
+                Value(' '),
+                functions.Cast(F('student__student_card'), output_field=CharField()),
+                output_field=CharField(),
+            )
+        ).filter(temp__icontains=filter_).order_by(*order_by)
+        serializer = self.serializer_class(query_set, many=True, context={'include': []})
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
     def create(self, request, *args, **kwargs):
         serializer = self.create_serializer(data=request.data)

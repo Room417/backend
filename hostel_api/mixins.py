@@ -27,15 +27,16 @@ class DefaultViewMixin(ModelViewSet):
         """ Функция поиска объектов """
         try:
             query_set = self.get_queryset().distinct()
-        except exceptions.FieldError as ex:
+            serializer = self.serializer_class(query_set, many=True,
+                                               context={'include': self.request.data.get('include', [])})
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+
+        except (exceptions.FieldError, AttributeError) as ex:
             return Response(data={
                 'error': 'Переданы некорректные поля, проверьте тело запроса.',
                 'msg': str(ex)
             }, status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.serializer_class(query_set, many=True,
-                                           context={'include': self.request.data.get('include', [])})
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
     def search_one(self, request, *args, **kwargs):
         """ Функция поиска объектов """

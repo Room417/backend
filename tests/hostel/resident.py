@@ -31,8 +31,7 @@ def test_filter_resident(initial_data, client, filters):
         'filter': filters,
         'include': ['student']
     }
-    response = client.post(reverse('persons-residents-search'), data=data, content_type='application/json')
-    print(response.json())
+    response = client.post(reverse('persons-residents-custom-search'), data=data, content_type='application/json')
     assert response.status_code == 200
     persons = response.json()
     if filters == {} or filters == {'room__building__number': 11} or filters == {'room__number': 15}:
@@ -53,7 +52,7 @@ def test_sort_resident(client, initial_data, sort):
         'sort': sort,
         'include': ['student']
     }
-    response = client.post(reverse('persons-residents-search'), data=data, content_type='application/json')
+    response = client.post(reverse('persons-residents-custom-search'), data=data, content_type='application/json')
     assert response.status_code == 200
     persons = response.json()
     assert len(persons) == 3
