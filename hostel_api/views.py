@@ -26,14 +26,8 @@ class StaffViewSet(DefaultViewMixin):
     serializer_class = StaffSerializer
     default_sort_fields = ['surname', 'name', 'patronymic']
 
-    def all_search(self, request, *args, **kwargs):
-        data = self.request.data
-        order_by = data.get('sort')
-        if not order_by:
-            order_by = self.default_sort_fields
-        filter_ = data.get('search', '')
-
-        queryset = self.model.objects.annotate(
+    def search_filter(self, filter_: str, include: list, order_by: list):
+        return self.model.objects.prefetch_related(*include).annotate(
             temp=functions.Concat(
                 F('surname'),
                 Value(' '),
@@ -43,15 +37,6 @@ class StaffViewSet(DefaultViewMixin):
                 output_field=CharField(),
             )
         ).filter(temp__icontains=filter_).order_by(*order_by)
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.serializer_class(queryset, many=True, context={'include': []})
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
 
 class StudentViewSet(DefaultViewMixin):
@@ -68,23 +53,8 @@ class ResidentsViewSet(DefaultViewMixin):
     default_sort_fields = ['student__surname', 'student__name', 'student__patronymic']
     create_serializer = ResidentCreateSerializer
 
-    def _get_object(self, id_: int, model: Union[Room, Resident]) -> Union[Room, Resident, dict]:
-        try:
-            return model.objects.get(id=id_)
-        except model.DoesNotExist:
-            return {
-                'error': 'Объект не найден',
-                'msg': '{model} с таким id не существует'
-            }
-
-    def all_search(self, request, *args, **kwargs):
-        data = self.request.data
-        order_by = data.get('sort')
-        if not order_by:
-            order_by = self.default_sort_fields
-        filter_ = data.get('search', '')
-
-        queryset = self.model.objects.annotate(
+    def search_filter(self, filter_: str, include: list, order_by: list):
+        return self.model.objects.prefetch_related(*include).annotate(
             temp=functions.Concat(
                 F('student__surname'),
                 Value(' '),
@@ -96,15 +66,15 @@ class ResidentsViewSet(DefaultViewMixin):
                 output_field=CharField(),
             )
         ).filter(temp__icontains=filter_).order_by(*order_by)
-        
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        
-        serializer = self.serializer_class(queryset, many=True, context={'include': []})
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+
+    def _get_object(self, id_: int, model: Union[Room, Resident]) -> Union[Room, Resident, dict]:
+        try:
+            return model.objects.get(id=id_)
+        except model.DoesNotExist:
+            return {
+                'error': 'Объект не найден',
+                'msg': '{model} с таким id не существует'
+            }
 
     def create(self, request, *args, **kwargs):
         serializer = self.create_serializer(data=request.data)

@@ -16,7 +16,7 @@ class BuildingShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Building
-        fields = ['number', 'address']
+        fields = ['id', 'number', 'address']
 
 
 class StaffSerializer(serializers.ModelSerializer):
@@ -24,7 +24,7 @@ class StaffSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Staff
-        fields = ['surname', 'name', 'patronymic', 'buildings']
+        fields = ['id', 'surname', 'name', 'patronymic', 'buildings']
 
     def get_buildings(self, obj):
         include_fields = self.context.get('include')
@@ -39,7 +39,7 @@ class BuildingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Building
-        fields = ['number', 'address', 'staff']
+        fields = ['id', 'number', 'address', 'staff']
 
     def get_staff(self, obj):
         include_fields = self.context.get('include')
@@ -70,7 +70,7 @@ class ResidentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resident
-        fields = ['student', 'grade', 'photo', 'birth_date',
+        fields = ['id', 'student', 'grade', 'photo', 'birth_date',
                   'enter_date', 'room', 'contract', 'registration', 'address']
 
     def get_student(self, obj):
@@ -100,7 +100,7 @@ class ResidentCreateSerializer(ResidentSerializer):
 
     class Meta:
         model = Resident
-        fields = ['student', 'grade', 'photo', 'birth_date',
+        fields = ['id', 'student', 'grade', 'photo', 'birth_date',
                   'enter_date', 'room', 'contract', 'registration']
 
     def create(self, validated_data):

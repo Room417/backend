@@ -1,0 +1,4 @@
+
+
+class BadSearch(BaseException):
+    pass
