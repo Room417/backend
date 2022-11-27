@@ -79,12 +79,12 @@ class Resident(models.Model):
     """Модель проживающего"""
     student = models.OneToOneField(Student, verbose_name='Студент', on_delete=models.CASCADE, related_name='resident')
     grade = models.ForeignKey(Grade, verbose_name='Ступень обучения', on_delete=models.PROTECT)
-    photo = models.ImageField(verbose_name='Фото', upload_to=get_photo_path)
+    photo = models.ImageField(verbose_name='Фото', upload_to=get_photo_path, null=True)
     birth_date = models.DateField(verbose_name='Дата рождения')
     enter_date = models.DateField(verbose_name='Дата зачисления')
     room = models.ForeignKey(Room, verbose_name='Комната', on_delete=models.PROTECT)
-    contract = models.FileField(verbose_name='Договор', upload_to=get_contract_path)
-    registration = models.FileField(verbose_name='Временная регистрация', upload_to=get_registration_path)
+    contract = models.FileField(verbose_name='Договор', upload_to=get_contract_path, null=True)
+    registration = models.FileField(verbose_name='Временная регистрация', upload_to=get_registration_path, null=True)
 
     @property
     def address(self) -> str:

@@ -25,9 +25,9 @@ def test_filter_staff(client, initial_data, filters):
     data = {
         'filter': filters
     }
-    response = client.post(reverse('persons-staff-custom-search'), data=data, content_type='application/json')
+    response = client.post(reverse('persons-staff-search'), data=data, content_type='application/json')
     assert response.status_code == 200
-    persons = response.json()
+    persons = response.json()['data']
     if filters == {}:
         assert len(persons) == 3
 
@@ -47,9 +47,9 @@ def test_sort_staff(client, initial_data, sort):
     data = {
         'sort': sort
     }
-    response = client.post(reverse('persons-staff-custom-search'), data=data, content_type='application/json')
+    response = client.post(reverse('persons-staff-search'), data=data, content_type='application/json')
     assert response.status_code == 200
-    persons = response.json()
+    persons = response.json()['data']
     assert len(persons) == 3
     if sort == ['name']:
         assert persons[0]['name'] == 'Александр'
@@ -74,9 +74,9 @@ def test_include_staff(client, initial_data, include):
     data = {
         'include': include
     }
-    response = client.post(reverse('persons-staff-custom-search'), data=data, content_type='application/json')
+    response = client.post(reverse('persons-staff-search'), data=data, content_type='application/json')
     assert response.status_code == 200
-    persons = response.json()
+    persons = response.json()['data']
     assert len(persons) == 3
     if include:
         assert persons[0]['buildings'] == [{

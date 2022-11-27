@@ -17,7 +17,7 @@ def test_filter_student(client, initial_data, filters):
     }
     response = client.post(reverse('persons-students-search'), data=data, content_type='application/json')
     assert response.status_code == 200
-    persons = response.json()
+    persons = response.json()['data']
     if filters == {}:
         assert len(persons) == 3
 
@@ -39,7 +39,7 @@ def test_sort_student(client, initial_data, sort):
     }
     response = client.post(reverse('persons-students-search'), data=data, content_type='application/json')
     assert response.status_code == 200
-    persons = response.json()
+    persons = response.json()['data']
     assert len(persons) == 3
     if sort == ['name']:
         assert persons[0]['name'] == 'Александр'

@@ -15,11 +15,8 @@ def resident_factory(student_factory, grade_factory, room_factory):
 
         student = factory.SubFactory(student_factory)
         grade = factory.SubFactory(grade_factory)
-        photo = factory.django.ImageField()
         birth_date = factory.fuzzy.FuzzyDate(date(1990, 1, 1), date(2022, 1, 1))
         enter_date = factory.fuzzy.FuzzyDate(date(1990, 1, 1), date(2022, 1, 1))
         room = factory.SubFactory(room_factory)
-        contract = factory.django.FileField()
-        registration = factory.django.FileField()
 
     return ResidentFactory
