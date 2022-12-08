@@ -3,6 +3,7 @@ from typing import Union
 import pydantic
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import F, CharField, functions, Value
 
 from .models import (
@@ -19,6 +20,8 @@ from .serializers import (
 )
 from .mixins import DefaultViewMixin
 
+from backend.permissions import StaffUserPermission
+
 
 class StaffViewSet(DefaultViewMixin):
     """ ViewSet для взаимодействия с данными работников общежития """
@@ -27,6 +30,7 @@ class StaffViewSet(DefaultViewMixin):
     default_sort_fields = ['surname', 'name', 'patronymic']
     list_serializer = StaffSerializer
     detail_serializer = StaffSerializer
+    permission_classes = [IsAuthenticated]
 
     def search_filter(self, filter_: str, include: list, order_by: list):
         return self.model.objects.prefetch_related(*include).annotate(
@@ -48,6 +52,7 @@ class StudentViewSet(DefaultViewMixin):
     list_serializer = StudentSerializer
     detail_serializer = StudentSerializer
     default_sort_fields = ['surname', 'name', 'patronymic']
+    permission_classes = [StaffUserPermission]
 
 
 class ResidentsViewSet(DefaultViewMixin):
@@ -58,6 +63,7 @@ class ResidentsViewSet(DefaultViewMixin):
     detail_serializer = ResidentSerializer
     default_sort_fields = ['student__surname', 'student__name', 'student__patronymic']
     create_serializer = ResidentCreateSerializer
+    permission_classes = [StaffUserPermission]
 
     def search_filter(self, filter_: str, include: list, order_by: list):
         return self.model.objects.prefetch_related(*include).annotate(

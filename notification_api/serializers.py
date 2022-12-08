@@ -38,6 +38,23 @@ class NotificationSerializer(serializers.ModelSerializer):
         return [item.__str__() for item in obj.recipients.all()]
 
 
+class NotificationCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Notification
+        fields = [
+            'author',
+            'title',
+            'description',
+            'creation_date',
+            'is_published',
+            'recipients',
+            'start_date',
+            'end_date',
+            'is_active'
+        ]
+
+
 class RequestSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     recipients = serializers.SerializerMethodField()
@@ -70,3 +87,15 @@ class RequestSerializer(serializers.ModelSerializer):
             return StaffSerializer(obj.recipients.all(), many=True).data
 
         return [item.__str__() for item in obj.recipients.all()]
+
+
+class RequestCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Request
+        fields = [
+            'author',
+            'recipients',
+            'title',
+            'description',
+        ]
