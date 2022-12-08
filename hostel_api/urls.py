@@ -11,6 +11,8 @@ urlpatterns = [
          name='persons-students-search'),
     path('persons/students:search-one', StudentViewSet.as_view({'post': 'search_one'}),
          name='persons-students-search-one'),
+    path('persons/students', StudentViewSet.as_view({'post': 'create'}),
+         name='persons-students-create'),
 
     path('persons/residents:search', ResidentsViewSet.as_view({'post': 'search'}),
          name='persons-residents-search'),

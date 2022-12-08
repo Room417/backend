@@ -1,14 +1,14 @@
 from rest_framework import serializers
 from pydantic import BaseModel
-import factory
+from django.db.utils import IntegrityError
 
 from .models import (
+    User,
     Staff,
     Student,
     Resident,
     Room,
     Building,
-    Grade
 )
 
 
@@ -52,7 +52,28 @@ class BuildingSerializer(serializers.ModelSerializer):
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        exclude = ['auth_token', 'pass_hash']
+        fields = [
+            'id',
+            'surname',
+            'name',
+            'patronymic',
+            'grade',
+            'group',
+            'study_direction',
+            'student_card',
+            'birth_date',
+            'enter_date'
+        ]
+
+    def create(self, validated_data):
+        try:
+            user = User.objects.create(username=validated_data['student_card'])
+            user.set_password(validated_data['birth_date'].strftime('%d.%m.%Y'))
+            user.save()
+        except IntegrityError:
+            raise serializers.ValidationError({'error': 'Такой студент уже зарегистрирован'})
+        validated_data['user_id'] = user.id
+        return super().create(validated_data)
 
 
 class RoomShortSerializer(serializers.ModelSerializer):
@@ -64,14 +85,12 @@ class RoomShortSerializer(serializers.ModelSerializer):
 
 
 class ResidentSerializer(serializers.ModelSerializer):
-    grade = serializers.CharField(source='grade.name')
     student = serializers.SerializerMethodField()
     room = serializers.SerializerMethodField()
 
     class Meta:
         model = Resident
-        fields = ['id', 'student', 'grade', 'photo', 'birth_date',
-                  'enter_date', 'room', 'contract', 'registration', 'address']
+        fields = ['id', 'student', 'photo', 'room', 'contract', 'registration', 'address']
 
     def get_student(self, obj):
         include_fields = self.context.get('include')
@@ -89,36 +108,27 @@ class ResidentSerializer(serializers.ModelSerializer):
 
 
 class ResidentCreateSerializer(ResidentSerializer):
-    grade = serializers.CharField(write_only=True)
     student = serializers.IntegerField(write_only=True)
-    room = serializers.CharField(write_only=True)
-    contract = serializers.FileField(required=False, write_only=True)
-    registration = serializers.FileField(required=False, write_only=True)
-    photo = serializers.ImageField(write_only=True)
-    birth_date = serializers.DateField(write_only=True)
-    enter_date = serializers.DateField(write_only=True)
+    room = serializers.CharField()
+    contract = serializers.FileField(required=False,)
+    registration = serializers.FileField(required=False)
+    photo = serializers.ImageField(required=False)
 
     class Meta:
         model = Resident
-        fields = ['id', 'student', 'grade', 'photo', 'birth_date',
-                  'enter_date', 'room', 'contract', 'registration']
+        fields = ['id', 'student', 'photo', 'room', 'contract', 'registration']
 
     def create(self, validated_data):
         return super().create(validated_data)
 
-    def validate_grade(self, value):
-        try:
-            grade = Grade.objects.get(name=value)
-            return grade
-        except Grade.DoesNotExist:
-            raise serializers.ValidationError('Ступень обучения не найдена')
-
     def validate_student(self, value):
         try:
             student = Student.objects.get(student_card=value)
-            if student.resident is None:
+            try:
+                student.resident
+                raise serializers.ValidationError('Студент уже заселен')
+            except Student.resident.RelatedObjectDoesNotExist:
                 return student
-            raise serializers.ValidationError('Студент уже заселен')
         except Student.DoesNotExist:
             raise serializers.ValidationError('Студент не найден')
 
@@ -126,19 +136,11 @@ class ResidentCreateSerializer(ResidentSerializer):
         building_num, room_num = value.split('-')
         try:
             room = Room.objects.get(number=room_num, building__number=building_num)
+            if room.resident_set.count() == room.max_residents:
+                raise serializers.ValidationError('Комната полностью заселена')
             return room
         except Room.DoesNotExist:
-            raise serializers.ValidationError('Студент не найден')
-
-    def validate_contract(self, value):
-        if value is None:
-            return factory.django.FileField()
-        return value
-
-    def validate_registration(self, value):
-        if value is None:
-            return factory.django.FileField()
-        return value
+            raise serializers.ValidationError('Комната не найдена')
 
 
 class RelocateRoomResidentSchema(BaseModel):

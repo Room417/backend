@@ -6,7 +6,6 @@ from .models import (
     Resident,
     Room,
     Building,
-    Grade,
 )
 
 
@@ -32,9 +31,4 @@ class ResidentAdmin(admin.ModelAdmin):
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(Grade)
-class GradeAdmin(admin.ModelAdmin):
     pass

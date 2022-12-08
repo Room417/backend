@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 from .path_utils import get_photo_path, get_contract_path, get_registration_path
 
 
@@ -50,14 +52,25 @@ class Room(models.Model):
 
 class Student(models.Model):
     """Модель студента"""
+
+    class Grade(models.TextChoices):
+        BACHELOR = 'Бакалавр', _('Бакалавр')
+        MASTER = 'Магистр', _('Магистр')
+        POSTGRADUATE = 'Аспирант', _('Аспирант')
+
+    user = models.OneToOneField(User, verbose_name='Пользователь', on_delete=models.CASCADE)
     surname = models.CharField(verbose_name='Фамилия', max_length=25)
     name = models.CharField(verbose_name='Имя', max_length=25)
     patronymic = models.CharField(verbose_name='Отчество', max_length=25)
+
+    grade = models.CharField(verbose_name='Ступень обучения', max_length=25, choices=Grade.choices,
+                             default=Grade.BACHELOR)
     group = models.CharField(verbose_name='Группа', max_length=10)
     study_direction = models.CharField(verbose_name='Направление подготовки', max_length=50)
     student_card = models.PositiveIntegerField(verbose_name='Номер студенческого')
-    auth_token = models.CharField(verbose_name='Токен аутентификации', max_length=100)
-    pass_hash = models.CharField(verbose_name='Хэш пароля', max_length=256)
+
+    birth_date = models.DateField(verbose_name='Дата рождения')
+    enter_date = models.DateField(verbose_name='Дата зачисления')
 
     def update_profile(self):
         """Функция для получения актуальной информации в начале учебного года из ОРИОКС'а"""
@@ -67,21 +80,10 @@ class Student(models.Model):
         return f'{self.surname} {self.name} {self.group}'
 
 
-class Grade(models.Model):
-    """Модель ступени обучения"""
-    name = models.CharField(verbose_name='Название', max_length=20)
-
-    def __str__(self):
-        return self.name
-
-
 class Resident(models.Model):
     """Модель проживающего"""
     student = models.OneToOneField(Student, verbose_name='Студент', on_delete=models.CASCADE, related_name='resident')
-    grade = models.ForeignKey(Grade, verbose_name='Ступень обучения', on_delete=models.PROTECT)
     photo = models.ImageField(verbose_name='Фото', upload_to=get_photo_path, null=True)
-    birth_date = models.DateField(verbose_name='Дата рождения')
-    enter_date = models.DateField(verbose_name='Дата зачисления')
     room = models.ForeignKey(Room, verbose_name='Комната', on_delete=models.PROTECT)
     contract = models.FileField(verbose_name='Договор', upload_to=get_contract_path, null=True)
     registration = models.FileField(verbose_name='Временная регистрация', upload_to=get_registration_path, null=True)

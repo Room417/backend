@@ -80,16 +80,19 @@ def test_include_staff(client, initial_data, include):
     assert len(persons) == 3
     if include:
         assert persons[0]['buildings'] == [{
+            'id': initial_data['building1'].id,
             'number': initial_data['building1'].number,
             'address': initial_data['building1'].address
         }]
         assert persons[1]['buildings'] == []
         assert persons[2]['buildings'] == [
             {
+                'id': initial_data['building1'].id,
                 'number': initial_data['building1'].number,
                 'address': initial_data['building1'].address
             },
             {
+                'id': initial_data['building2'].id,
                 'number': initial_data['building2'].number,
                 'address': initial_data['building2'].address
             }

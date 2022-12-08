@@ -11,11 +11,13 @@ from .exceptions import BadSearch
 class DefaultViewMixin(ModelViewSet):
     """ Миксин для реализации поиска объектов """
     model = None
-    model = None
     default_sort_fields = []
     default_filter_fields = {}
     default_include_fields = []
     pagination_class = MetaPaginator
+    serializer_class = None
+    list_serializer = None
+    detail_serializer = None
 
     def search_filter(self, filter_: str, include: list, order_by: list):
         raise BadSearch({
@@ -52,15 +54,15 @@ class DefaultViewMixin(ModelViewSet):
 
             page = self.paginate_queryset(queryset)
             if page is not None:
-                serializer = self.get_serializer(
+                serializer = self.list_serializer(
                     page,
                     many=True,
                     context={'include': self.request.data.get('include', [])}
                 )
                 return self.get_paginated_response(serializer.data)
 
-            serializer = self.serializer_class(queryset, many=True,
-                                               context={'include': self.request.data.get('include', [])})
+            serializer = self.list_serializer(queryset, many=True,
+                                              context={'include': self.request.data.get('include', [])})
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
@@ -84,7 +86,9 @@ class DefaultViewMixin(ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
         if obj is None:
             return Response(None, status=status.HTTP_404_NOT_FOUND)
-        serializer = self.serializer_class(obj,
-                                           context={'include': self.request.data.get('include', [])})
+        serializer = self.detail_serializer(
+            obj,
+            context={'include': self.request.data.get('include', [])}
+        )
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)

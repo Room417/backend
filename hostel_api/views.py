@@ -25,6 +25,8 @@ class StaffViewSet(DefaultViewMixin):
     model = Staff
     serializer_class = StaffSerializer
     default_sort_fields = ['surname', 'name', 'patronymic']
+    list_serializer = StaffSerializer
+    detail_serializer = StaffSerializer
 
     def search_filter(self, filter_: str, include: list, order_by: list):
         return self.model.objects.prefetch_related(*include).annotate(
@@ -43,6 +45,8 @@ class StudentViewSet(DefaultViewMixin):
     """ ViewSet для взаимодействия с данными студентов """
     model = Student
     serializer_class = StudentSerializer
+    list_serializer = StudentSerializer
+    detail_serializer = StudentSerializer
     default_sort_fields = ['surname', 'name', 'patronymic']
 
 
@@ -50,6 +54,8 @@ class ResidentsViewSet(DefaultViewMixin):
     """ ViewSet для взаимодействия с данными проживающих общежития """
     model = Resident
     serializer_class = ResidentSerializer
+    list_serializer = ResidentSerializer
+    detail_serializer = ResidentSerializer
     default_sort_fields = ['student__surname', 'student__name', 'student__patronymic']
     create_serializer = ResidentCreateSerializer
 
