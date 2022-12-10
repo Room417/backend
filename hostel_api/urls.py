@@ -13,6 +13,10 @@ urlpatterns = [
          name='persons-students-search-one'),
     path('persons/students', StudentViewSet.as_view({'post': 'create'}),
          name='persons-students-create'),
+    path('persons/students/{pk}/$', StudentViewSet.as_view({'patch': 'partial_update'}),
+         name='persons-students-update'),
+    path('persons/students/{pk}/$', StudentViewSet.as_view({'delete': 'destroy'}),
+         name='persons-students-delete'),
 
     path('persons/residents:search', ResidentsViewSet.as_view({'post': 'search'}),
          name='persons-residents-search'),
@@ -20,6 +24,10 @@ urlpatterns = [
          name='persons-residents-search-one'),
     path('persons/residents', ResidentsViewSet.as_view({'post': 'create'}),
          name='persons-residents-create'),
+    path('persons/residents/{pk}/$', ResidentsViewSet.as_view({'patch': 'partial_update'}),
+         name='persons-residents-update'),
+    path('persons/residents/{pk}/$', ResidentsViewSet.as_view({'delete': 'destroy'}),
+         name='persons-residents-delete'),
     path('residents/relocate', ResidentsViewSet.as_view({'post': 'relocate'}),
          name='persons-residents-relocate'),
 ]

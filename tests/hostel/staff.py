@@ -70,7 +70,8 @@ def test_sort_staff(client, initial_data, sort):
 
 
 @pytest.mark.parametrize('include', [[], ['buildings']])
-def test_include_staff(client, initial_data, include):
+def test_include_staff(client, initial_data, include, staff_factory):
+    staff = staff_factory()
     data = {
         'include': include
     }

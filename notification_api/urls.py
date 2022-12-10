@@ -10,6 +10,10 @@ urlpatterns = [
          name='notification-search-one'),
     path('notifications', NotificationViewSet.as_view({'post': 'create'}),
          name='notification-create'),
+    path('notifications/{pk}/$', NotificationViewSet.as_view({'patch': 'partial_update'}),
+         name='notifications-update'),
+    path('notifications/{pk}/$', NotificationViewSet.as_view({'delete': 'destroy'}),
+         name='notifications-delete'),
 
 
     path('requests:search', RequestsViewSet.as_view({'post': 'search'}),
@@ -18,4 +22,8 @@ urlpatterns = [
          name='requests-search-one'),
     path('requests', RequestsViewSet.as_view({'post': 'create'}),
          name='requests-create'),
+    path('requests/{pk}/$', RequestsViewSet.as_view({'patch': 'partial_update'}),
+         name='requests-update'),
+    path('requests/{pk}/$', RequestsViewSet.as_view({'delete': 'destroy'}),
+         name='requests-delete'),
 ]
