@@ -96,9 +96,9 @@ class ResidentsViewSet(DefaultViewMixin):
             )
         ).filter(temp__icontains=filter_).order_by(*order_by)
 
-    def _get_object(self, id_: int, model: Union[Room, Resident]) -> Union[Room, Resident, dict]:
+    def _get_object(self, model: Union[Room, Resident], **kwargs) -> Union[Room, Resident, dict]:
         try:
-            return model.objects.get(id=id_)
+            return model.objects.get(**kwargs)
         except model.DoesNotExist:
             return {
                 'error': 'Объект не найден',
@@ -121,8 +121,8 @@ class ResidentsViewSet(DefaultViewMixin):
                 'error': 'Переданы некорректные поля, проверьте тело запроса.',
                 'msg': ex.errors()
             }, status=status.HTTP_400_BAD_REQUEST)
-        room = self._get_object(id_=schema.room_id, model=Room)
-        resident = self._get_object(id_=schema.resident_id, model=Resident)
+        room = self._get_object(number=schema.room_num, model=Room, building__number=schema.building_num)
+        resident = self._get_object(student__student_card=schema.student_card, model=Resident)
         if isinstance(room, dict):
             room['msg'] = room['msg'].format(model='Комнаты')
             return Response(data=room, status=status.HTTP_400_BAD_REQUEST)

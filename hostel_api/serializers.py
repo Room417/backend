@@ -144,5 +144,6 @@ class ResidentCreateSerializer(ResidentSerializer):
 
 
 class RelocateRoomResidentSchema(BaseModel):
-    room_id: int
-    resident_id: int
+    building_num: int
+    room_num: int
+    student_card: int

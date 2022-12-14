@@ -4,9 +4,9 @@ from .views import *
 
 
 router = SimpleRouter()
-router.register('persons', ResidentsViewSet, basename='residents')
-router.register('persons', StudentViewSet, basename='students')
-router.register('persons', StaffViewSet, basename='staff')
+router.register('persons/residents', ResidentsViewSet, basename='residents')
+router.register('persons/students', StudentViewSet, basename='students')
+router.register('persons/staff', StaffViewSet, basename='staff')
 
 
 urlpatterns = router.urls
