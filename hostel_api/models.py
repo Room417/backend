@@ -6,7 +6,7 @@ from .path_utils import get_photo_path, get_contract_path, get_registration_path
 
 
 class Staff(models.Model):
-    """Модель работника общежития"""
+    """ Модель работника общежития """
     user = models.OneToOneField(User, verbose_name='Пользователь', on_delete=models.CASCADE)
     surname = models.CharField(verbose_name='Фамилия', max_length=25)
     name = models.CharField(verbose_name='Имя', max_length=25)
@@ -17,7 +17,7 @@ class Staff(models.Model):
 
 
 class Building(models.Model):
-    """Модель корпуса"""
+    """ Модель корпуса """
     number = models.PositiveIntegerField(verbose_name='Номер корпуса=')
     staff = models.ManyToManyField(Staff, verbose_name='Комендант', related_name='buildings')
 
@@ -26,12 +26,12 @@ class Building(models.Model):
 
     @property
     def address(self) -> str:
-        """Свойство для получения адреса корпуса"""
+        """ Свойство для получения адреса корпуса """
         return f'г. Зеленоград, ул. Юности, д. {self.number}'
 
 
 class Room(models.Model):
-    """Модель комнаты"""
+    """ Модель комнаты """
     number = models.PositiveIntegerField(verbose_name='Номер комнаты')
     building = models.ForeignKey(Building, verbose_name='Корпус', related_name='rooms', on_delete=models.CASCADE)
     max_residents = models.PositiveIntegerField(verbose_name='Максимальное число жильцов')
@@ -41,21 +41,22 @@ class Room(models.Model):
 
     @property
     def floor(self) -> int:
-        """Свойство для получения номера этажа"""
-        return self.number % 100
+        """ Свойство для получения номера этажа """
+        return self.number // 100
 
     @property
     def residents_count(self) -> int:
+        """ Свойство для получения текущего числа жильцов """
         return self.residents.count()
 
     @property
     def is_full(self) -> bool:
-        """Заполнена ли комната"""
+        """ Заполнена ли комната """
         return Resident.objects.filter(room_id=self.id).count() == self.max_residents
 
 
 class Student(models.Model):
-    """Модель студента"""
+    """ Модель студента """
 
     class Grade(models.TextChoices):
         BACHELOR = 'Бакалавр', _('Бакалавр')
@@ -77,7 +78,7 @@ class Student(models.Model):
     enter_date = models.DateField(verbose_name='Дата зачисления')
 
     def update_profile(self):
-        """Функция для получения актуальной информации в начале учебного года из ОРИОКС'а"""
+        """ Функция для получения актуальной информации в начале учебного года из ОРИОКС'а """
         pass
 
     def __str__(self):
@@ -85,7 +86,7 @@ class Student(models.Model):
 
 
 class Resident(models.Model):
-    """Модель проживающего"""
+    """ Модель проживающего """
     student = models.OneToOneField(Student, verbose_name='Студент', on_delete=models.CASCADE, related_name='resident')
     photo = models.ImageField(verbose_name='Фото', upload_to=get_photo_path, null=True, blank=True)
     room = models.ForeignKey(Room, verbose_name='Комната', on_delete=models.PROTECT, related_name='residents')
@@ -95,6 +96,7 @@ class Resident(models.Model):
 
     @property
     def address(self) -> str:
+        """ Свойство для получения адреса проживания студента """
         return f'{self.room.building.address}, к. {self.room.number}'
 
     def __str__(self):

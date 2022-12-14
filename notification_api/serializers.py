@@ -5,6 +5,7 @@ from hostel_api.serializers import StaffSerializer, ResidentSerializer
 
 
 class NotificationSerializer(serializers.ModelSerializer):
+    """ Сериализатор для отображения уведомлений """
     author = serializers.SerializerMethodField()
     recipients = serializers.SerializerMethodField()
 
@@ -24,6 +25,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         ]
 
     def get_author(self, obj):
+        """ Получение автора уведомлений (id или весь объект)"""
         include_fields = self.context.get('include')
         if include_fields and 'author' in include_fields:
             return StaffSerializer(obj.author).data
@@ -31,6 +33,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         return obj.author.__str__()
 
     def get_recipients(self, obj):
+        """ Получение получателей уведомлений (id или целые объекты)"""
         include_fields = self.context.get('include')
         if include_fields and 'recipients' in include_fields:
             return ResidentSerializer(obj.recipients.all(), many=True).data
@@ -39,6 +42,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 
 class NotificationCreateSerializer(serializers.ModelSerializer):
+    """ Сериализатор для создания уведомлений """
 
     class Meta:
         model = Notification
@@ -56,6 +60,7 @@ class NotificationCreateSerializer(serializers.ModelSerializer):
 
 
 class RequestSerializer(serializers.ModelSerializer):
+    """ Сериализатор для отображение заявок """
     author = serializers.SerializerMethodField()
     recipients = serializers.SerializerMethodField()
 
@@ -75,6 +80,7 @@ class RequestSerializer(serializers.ModelSerializer):
         ]
 
     def get_author(self, obj):
+        """ Получение автора заявки (id или весь объект)"""
         include_fields = self.context.get('include')
         if include_fields and 'author' in include_fields:
             return ResidentSerializer(obj.author).data
@@ -82,6 +88,7 @@ class RequestSerializer(serializers.ModelSerializer):
         return obj.author.__str__()
 
     def get_recipients(self, obj):
+        """ Получение получателей заявки (id или целые объекты)"""
         include_fields = self.context.get('include')
         if include_fields and 'recipients' in include_fields:
             return StaffSerializer(obj.recipients.all(), many=True).data
@@ -90,6 +97,7 @@ class RequestSerializer(serializers.ModelSerializer):
 
 
 class RequestCreateSerializer(serializers.ModelSerializer):
+    """ Сериализатор для создания заявки """
 
     class Meta:
         model = Request

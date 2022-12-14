@@ -26,12 +26,14 @@ class NotificationViewSet(DefaultViewMixin):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """ Получение списка уведомлений пользователя """
         try:
             return self.model.objects.filter(author_id=self.request.user.staff.id)
         except User.staff.RelatedObjectDoesNotExist:
             return self.model.objects.filter(recipients__in=[self.request.user.student.resident])
 
     def create(self, request, *args, **kwargs):
+        """ Создание уведомления для проживающих корпусов, к которым относится комендант """
         try:
             staff = self.request.user.staff
             recipients = [
@@ -54,10 +56,12 @@ class NotificationViewSet(DefaultViewMixin):
 
     @action(methods=['post'], detail=False, url_path='notifications:search')
     def search(self, request, *args, **kwargs):
+        """ Поиск уведомлений """
         return super().search(request, *args, **kwargs)
 
     @action(methods=['post'], detail=False, url_path='notifications:search-one')
     def search_one(self, request, *args, **kwargs):
+        """ Поиск конкретного уведомления """
         return super().search_one(request, *args, **kwargs)
 
 
@@ -72,12 +76,14 @@ class RequestsViewSet(DefaultViewMixin):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """ Получение списка заявок пользователя """
         try:
             return self.model.objects.filter(recipients__in=[self.request.user.staff.id])
         except User.staff.RelatedObjectDoesNotExist:
             return self.model.objects.filter(author__in=[self.request.user.student.resident])
 
     def create(self, request, *args, **kwargs):
+        """ Создание уведомления для комендантов корпуса, к которому относится проживающий """
         try:
             resident = self.request.user.student.resident
             recipients = [
@@ -100,8 +106,10 @@ class RequestsViewSet(DefaultViewMixin):
 
     @action(methods=['post'], detail=False, url_path='requests:search')
     def search(self, request, *args, **kwargs):
+        """ Поиск заявок """
         return super().search(request, *args, **kwargs)
 
     @action(methods=['post'], detail=False, url_path='requests:search-one')
     def search_one(self, request, *args, **kwargs):
+        """ Поиск конкретной заявки """
         return super().search_one(request, *args, **kwargs)

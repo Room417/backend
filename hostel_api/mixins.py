@@ -20,6 +20,7 @@ class DefaultViewMixin(ModelViewSet):
     detail_serializer = None
 
     def search_filter(self, filter_: str, include: list, order_by: list):
+        """ По умолчанию адаптивный поиск не определен. Переопределяется в потомках """
         raise BadSearch({
             'error': 'Переданы некорректные поля, проверьте тело запроса.',
             'msg': 'Для этой модели не определен поиск'
@@ -76,7 +77,7 @@ class DefaultViewMixin(ModelViewSet):
             return Response(data=ex.args[0], status=status.HTTP_400_BAD_REQUEST)
 
     def search_one(self, request, *args, **kwargs):
-        """ Функция поиска объектов """
+        """ Функция поиска одного объекта """
         try:
             obj = self.get_queryset().distinct().first()
         except exceptions.FieldError as ex:

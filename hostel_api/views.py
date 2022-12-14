@@ -36,6 +36,7 @@ class StaffViewSet(DefaultViewMixin):
     permission_classes = [IsAuthenticated]
 
     def search_filter(self, filter_: str, include: list, order_by: list):
+        """ Фильтр для адаптивного поиска сотрудников """
         return self.model.objects.prefetch_related(*include).annotate(
             temp=functions.Concat(
                 F('surname'),
@@ -49,10 +50,12 @@ class StaffViewSet(DefaultViewMixin):
 
     @action(methods=['post'], detail=False, url_path='staff:search')
     def search(self, request, *args, **kwargs):
+        """ Поиск сотрудников """
         return super().search(request, *args, **kwargs)
 
     @action(methods=['post'], detail=False, url_path='staff:search-one')
     def search_one(self, request, *args, **kwargs):
+        """ Поиск конкретного сотрудника """
         return super().search_one(request, *args, **kwargs)
 
 
@@ -67,10 +70,12 @@ class StudentViewSet(DefaultViewMixin):
 
     @action(methods=['post'], detail=False, url_path='students:search')
     def search(self, request, *args, **kwargs):
+        """ Поиск студентов """
         return super().search(request, *args, **kwargs)
 
     @action(methods=['post'], detail=False, url_path='students:search-one')
     def search_one(self, request, *args, **kwargs):
+        """ Поиск конкретного студента """
         return super().search_one(request, *args, **kwargs)
 
 
@@ -85,6 +90,7 @@ class ResidentsViewSet(DefaultViewMixin):
     permission_classes = [StaffUserPermission]
 
     def search_filter(self, filter_: str, include: list, order_by: list):
+        """ Фильтр для адаптивного поиска проживающих """
         return self.model.objects.prefetch_related(*include).annotate(
             temp=functions.Concat(
                 F('student__surname'),
@@ -98,16 +104,18 @@ class ResidentsViewSet(DefaultViewMixin):
             )
         ).filter(temp__icontains=filter_).order_by(*order_by)
 
-    def _get_object(self, model: Union[Room, Resident], **kwargs) -> Union[Room, Resident, dict]:
+    def _get_object(self, model, **kwargs) -> Union[Room, Resident, dict]:
+        """ Получение нужного объекта для любой модели """
         try:
             return model.objects.get(**kwargs)
         except model.DoesNotExist:
             return {
                 'error': 'Объект не найден',
-                'msg': '{model} с таким id не существует'
+                'msg': '{model} не найдена'
             }
 
     def create(self, request, *args, **kwargs):
+        """ Заселение студента в общежитие """
         serializer = self.create_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -116,6 +124,7 @@ class ResidentsViewSet(DefaultViewMixin):
 
     @action(methods=['post'], detail=False, url_path='residents:relocate')
     def relocate(self, request, *args, **kwargs):
+        """ Переселение проживающенго """
         try:
             schema = RelocateRoomResidentSchema(**self.request.data)
         except pydantic.error_wrappers.ValidationError as ex:
@@ -126,10 +135,10 @@ class ResidentsViewSet(DefaultViewMixin):
         room = self._get_object(number=schema.room_num, model=Room, building__number=schema.building_num)
         resident = self._get_object(student__student_card=schema.student_card, model=Resident)
         if isinstance(room, dict):
-            room['msg'] = room['msg'].format(model='Комнаты')
+            room['msg'] = room['msg'].format(model='Комната')
             return Response(data=room, status=status.HTTP_400_BAD_REQUEST)
         if isinstance(resident, dict):
-            resident['msg'] = resident['msg'].format(model='Проживающего')
+            resident['msg'] = resident['msg'].format(model='Проживающий')
             return Response(data=resident, status=status.HTTP_400_BAD_REQUEST)
 
         if room.is_full:
@@ -145,10 +154,12 @@ class ResidentsViewSet(DefaultViewMixin):
 
     @action(methods=['post'], detail=False, url_path='residents:search')
     def search(self, request, *args, **kwargs):
+        """ Поиск проживающих """
         return super().search(request, *args, **kwargs)
 
     @action(methods=['post'], detail=False, url_path='residents:search-one')
     def search_one(self, request, *args, **kwargs):
+        """ Поиск конкретного проживающего """
         return super().search_one(request, *args, **kwargs)
 
 
@@ -158,12 +169,6 @@ class RoomViewSet(viewsets.ModelViewSet):
     permission_classes = [StaffUserPermission]
 
     def get_queryset(self):
+        """ Получение комнат по номеру корпуса """
         building_num = self.request.query_params['building_num']
         return self.queryset.filter(building__number=building_num)
-
-        # except KeyError:
-        #      Response(data={
-        #         'error': 'Не передан номер корпуса',
-        #         'msg': 'Не передан номер корпуса'
-        #     }, status=status.HTTP_400_BAD_REQUEST)
-

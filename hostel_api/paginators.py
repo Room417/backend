@@ -5,9 +5,25 @@ from rest_framework.response import Response
 
 
 class MetaPaginator(LimitOffsetPagination):
+    """
+    Класс для пагинации вида
+    {
+        meta: {
+            pagination: {
+                limit: ...
+                offset: ...
+                total: ...
+            }
+        }
+
+        data: [...]
+
+    }
+    """
     default_limit = 10
 
     def get_paginated_response(self, data):
+        """ Создание ответа с пагинацией """
         pagination = {
             "pagination": {
                 "limit": self.limit,
@@ -21,6 +37,7 @@ class MetaPaginator(LimitOffsetPagination):
         ]))
 
     def get_limit(self, request):
+        """ Получение количества элементов на странице из тела запроса """
         pagination = request.data.get('pagination')
         if not pagination:
             return self.default_limit
@@ -32,6 +49,7 @@ class MetaPaginator(LimitOffsetPagination):
         return limit
 
     def get_offset(self, request):
+        """ Получение отступа из тела запроса """
         pagination = request.data.get('pagination')
         if not pagination:
             return 0

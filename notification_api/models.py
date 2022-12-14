@@ -6,7 +6,7 @@ from hostel_api.models import Staff, Resident
 
 
 class Notification(models.Model):
-    """Модель уведомления"""
+    """ Модель уведомления """
     author = models.ForeignKey(Staff, verbose_name='Автор', on_delete=models.CASCADE)
     title = models.CharField(verbose_name='Заголовок', max_length=50)
     description = models.TextField(verbose_name='Описание', max_length=1000)
@@ -25,7 +25,7 @@ class Notification(models.Model):
 
 
 class Request(models.Model):
-    """Модель заявки"""
+    """ Модель заявки """
     author = models.ForeignKey(Resident, verbose_name='Автор', on_delete=models.CASCADE)
     recipients = models.ManyToManyField(Staff, verbose_name='Получатель', related_name='requests')
     title = models.CharField(verbose_name='Заголовок', max_length=50)
