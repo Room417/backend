@@ -1,33 +1,12 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
 from .views import *
 
 
-urlpatterns = [
-    path('persons/staff:search', StaffViewSet.as_view({'post': 'search'}),
-         name='persons-staff-search'),
+router = SimpleRouter()
+router.register('persons', ResidentsViewSet, basename='residents')
+router.register('persons', StudentViewSet, basename='students')
+router.register('persons', StaffViewSet, basename='staff')
 
-    path('persons/students:search', StudentViewSet.as_view({'post': 'search'}),
-         name='persons-students-search'),
-    path('persons/students:search-one', StudentViewSet.as_view({'post': 'search_one'}),
-         name='persons-students-search-one'),
-    path('persons/students', StudentViewSet.as_view({'post': 'create'}),
-         name='persons-students-create'),
-    path('persons/students/{pk}/$', StudentViewSet.as_view({'patch': 'partial_update'}),
-         name='persons-students-update'),
-    path('persons/students/{pk}/$', StudentViewSet.as_view({'delete': 'destroy'}),
-         name='persons-students-delete'),
 
-    path('persons/residents:search', ResidentsViewSet.as_view({'post': 'search'}),
-         name='persons-residents-search'),
-    path('persons/residents:search-one', ResidentsViewSet.as_view({'post': 'search_one'}),
-         name='persons-residents-search-one'),
-    path('persons/residents', ResidentsViewSet.as_view({'post': 'create'}),
-         name='persons-residents-create'),
-    path('persons/residents/{pk}/$', ResidentsViewSet.as_view({'patch': 'partial_update'}),
-         name='persons-residents-update'),
-    path('persons/residents/{pk}/$', ResidentsViewSet.as_view({'delete': 'destroy'}),
-         name='persons-residents-delete'),
-    path('residents/relocate', ResidentsViewSet.as_view({'post': 'relocate'}),
-         name='persons-residents-relocate'),
-]
+urlpatterns = router.urls

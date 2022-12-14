@@ -4,6 +4,7 @@ import pydantic
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 from django.db.models import F, CharField, functions, Value
 
 from .models import (
@@ -44,6 +45,14 @@ class StaffViewSet(DefaultViewMixin):
             )
         ).filter(temp__icontains=filter_).order_by(*order_by)
 
+    @action(methods=['post'], detail=False, url_path='staff:search')
+    def search(self, request, *args, **kwargs):
+        return super().search(request, *args, **kwargs)
+
+    @action(methods=['post'], detail=False, url_path='staff:search-one')
+    def search_one(self, request, *args, **kwargs):
+        return super().search_one(request, *args, **kwargs)
+
 
 class StudentViewSet(DefaultViewMixin):
     """ ViewSet для взаимодействия с данными студентов """
@@ -53,6 +62,14 @@ class StudentViewSet(DefaultViewMixin):
     detail_serializer = StudentSerializer
     default_sort_fields = ['surname', 'name', 'patronymic']
     permission_classes = [StaffUserPermission]
+
+    @action(methods=['post'], detail=False, url_path='students:search')
+    def search(self, request, *args, **kwargs):
+        return super().search(request, *args, **kwargs)
+
+    @action(methods=['post'], detail=False, url_path='students:search-one')
+    def search_one(self, request, *args, **kwargs):
+        return super().search_one(request, *args, **kwargs)
 
 
 class ResidentsViewSet(DefaultViewMixin):
@@ -95,6 +112,7 @@ class ResidentsViewSet(DefaultViewMixin):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    @action(methods=['post'], detail=False, url_path='residents:relocate')
     def relocate(self, request, *args, **kwargs):
         try:
             schema = RelocateRoomResidentSchema(**self.request.data)
@@ -122,3 +140,11 @@ class ResidentsViewSet(DefaultViewMixin):
         resident.save(update_fields=['room'])
 
         return Response(status=status.HTTP_200_OK)
+
+    @action(methods=['post'], detail=False, url_path='residents:search')
+    def search(self, request, *args, **kwargs):
+        return super().search(request, *args, **kwargs)
+
+    @action(methods=['post'], detail=False, url_path='residents:search-one')
+    def search_one(self, request, *args, **kwargs):
+        return super().search_one(request, *args, **kwargs)

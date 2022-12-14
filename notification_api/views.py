@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from hostel_api.mixins import DefaultViewMixin
 from hostel_api.models import Resident, Staff, Student
@@ -51,6 +52,14 @@ class NotificationViewSet(DefaultViewMixin):
                 'msg': 'Вы не являетесь работником общежития'
             }, status=status.HTTP_403_FORBIDDEN)
 
+    @action(methods=['post'], detail=False, url_path='notifications:search')
+    def search(self, request, *args, **kwargs):
+        return super().search(request, *args, **kwargs)
+
+    @action(methods=['post'], detail=False, url_path='notifications:search-one')
+    def search_one(self, request, *args, **kwargs):
+        return super().search_one(request, *args, **kwargs)
+
 
 class RequestsViewSet(DefaultViewMixin):
     """ ViewSet для взаимодействия с данными работников общежития """
@@ -88,3 +97,11 @@ class RequestsViewSet(DefaultViewMixin):
                 'error': 'У Вас нет доступа к созданию заявок',
                 'msg': 'Вы не являетесь проживающим в общежитии'
             }, status=status.HTTP_403_FORBIDDEN)
+
+    @action(methods=['post'], detail=False, url_path='requests:search')
+    def search(self, request, *args, **kwargs):
+        return super().search(request, *args, **kwargs)
+
+    @action(methods=['post'], detail=False, url_path='requests:search-one')
+    def search_one(self, request, *args, **kwargs):
+        return super().search_one(request, *args, **kwargs)
