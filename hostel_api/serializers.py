@@ -147,3 +147,12 @@ class RelocateRoomResidentSchema(BaseModel):
     building_num: int
     room_num: int
     student_card: int
+
+
+class RoomFullSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Room
+        fields = [
+            'id', 'number', 'residents', 'residents_count', 'max_residents'
+        ]

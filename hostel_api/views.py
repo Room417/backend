@@ -2,6 +2,7 @@ from typing import Union
 
 import pydantic
 from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
@@ -18,6 +19,7 @@ from .serializers import (
     ResidentSerializer,
     ResidentCreateSerializer,
     RelocateRoomResidentSchema,
+    RoomFullSerializer
 )
 from .mixins import DefaultViewMixin
 
@@ -148,3 +150,20 @@ class ResidentsViewSet(DefaultViewMixin):
     @action(methods=['post'], detail=False, url_path='residents:search-one')
     def search_one(self, request, *args, **kwargs):
         return super().search_one(request, *args, **kwargs)
+
+
+class RoomViewSet(viewsets.ModelViewSet):
+    queryset = Room.objects.all()
+    serializer_class = RoomFullSerializer
+    permission_classes = [StaffUserPermission]
+
+    def get_queryset(self):
+        building_num = self.request.query_params['building_num']
+        return self.queryset.filter(building__number=building_num)
+
+        # except KeyError:
+        #      Response(data={
+        #         'error': 'Не передан номер корпуса',
+        #         'msg': 'Не передан номер корпуса'
+        #     }, status=status.HTTP_400_BAD_REQUEST)
+

@@ -45,6 +45,10 @@ class Room(models.Model):
         return self.number % 100
 
     @property
+    def residents_count(self) -> int:
+        return self.residents.count()
+
+    @property
     def is_full(self) -> bool:
         """Заполнена ли комната"""
         return Resident.objects.filter(room_id=self.id).count() == self.max_residents
@@ -84,7 +88,7 @@ class Resident(models.Model):
     """Модель проживающего"""
     student = models.OneToOneField(Student, verbose_name='Студент', on_delete=models.CASCADE, related_name='resident')
     photo = models.ImageField(verbose_name='Фото', upload_to=get_photo_path, null=True, blank=True)
-    room = models.ForeignKey(Room, verbose_name='Комната', on_delete=models.PROTECT)
+    room = models.ForeignKey(Room, verbose_name='Комната', on_delete=models.PROTECT, related_name='residents')
     contract = models.FileField(verbose_name='Договор', upload_to=get_contract_path, null=True, blank=True)
     registration = models.FileField(verbose_name='Временная регистрация', upload_to=get_registration_path, null=True,
                                     blank=True)
