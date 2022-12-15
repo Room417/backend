@@ -170,5 +170,5 @@ class RoomFullSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = [
-            'id', 'number', 'residents', 'residents_count', 'max_residents'
+            'id', 'number', 'residents', 'residents_count', 'max_residents', 'floor'
         ]
