@@ -1,3 +1,18 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import (
+    Notification,
+    Request
+)
+
+
+@admin.register(Request)
+class RequestAdmin(admin.ModelAdmin):
+    """ Админ панель для объектов модели заявок """
+    pass
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    """ Админ панель для объектов модели уведомлений """
+    pass
