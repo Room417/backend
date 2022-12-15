@@ -147,7 +147,7 @@ class ResidentCreateSerializer(ResidentSerializer):
         building_num, room_num = value.split('-')
         try:
             room = Room.objects.get(number=room_num, building__number=building_num)
-            if room.resident_set.count() == room.max_residents:
+            if room.residents.count() == room.max_residents:
                 raise serializers.ValidationError('Комната полностью заселена')
             return room
         except Room.DoesNotExist:
