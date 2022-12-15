@@ -1,7 +1,6 @@
 .idea/
 .env
 venv/
-*/migrations
 __pycache__
 backend/__pycache__
 barter_api/__pycache__
